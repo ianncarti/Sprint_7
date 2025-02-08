@@ -30,6 +30,3 @@ def create_login_delete_courier():
 
     #отправляем запрос на удаление аккаунта
     requests.delete(AppUrls.main_url + delete_url, data=data_for_delete_request)
-
-    #возвращаем кортеж из трёх ответов, а также креды от аккаунта
-    return reg_response, login_response, valid_creds

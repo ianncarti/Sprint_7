@@ -3,6 +3,7 @@ import pytest
 import requests
 import helpers
 from data import ApiCodeMessages
+from helpers import generate_uniq_creds
 from urls import AppUrls
 
 
@@ -10,15 +11,24 @@ class TestCourierCreate:
 
     @allure.title('Регистрация аккаунта курьера')
     @allure.description('Регистрируем аккаунт и сверяем текст ответа')
-    def test_courier_create_with_valid_creds_success(self, create_login_delete_courier):
-        # распаковываем ответы из фикстуры
-        reg_response, _, __ = create_login_delete_courier
+    def test_courier_create_with_valid_creds_success(self):
+        valid_creds = generate_uniq_creds()
+
+        # отправляем запрос на регистрацию
+        reg_response = requests.post(AppUrls.main_url + AppUrls.create_courier, data=valid_creds)
 
         # проверяем код ответа
         assert reg_response.status_code == 201
 
         # проверяем сообщение ответа
         assert ApiCodeMessages.success_message_account_created in reg_response.text
+
+        # удаляем аккаунт
+        login_response = requests.post(AppUrls.main_url + AppUrls.login_courier_url, data=valid_creds)
+        courier_id = login_response.json()['id']
+        data_for_delete_request = {'id': courier_id}
+        delete_url = AppUrls.delete_courier_url.format(id=courier_id)
+        requests.delete(AppUrls.main_url + delete_url, data=data_for_delete_request)
 
     @allure.title('Регистрация аккаунта c занятым логином')
     @allure.description('Дважды отправляется запрос на регистрацию с одинаковыми данными')

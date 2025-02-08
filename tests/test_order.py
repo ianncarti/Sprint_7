@@ -2,7 +2,7 @@ import json
 import allure
 import pytest
 import requests
-from data import ApiCodeMessages
+from data import ApiCodeMessages, get_order_data
 from urls import AppUrls
 
 
@@ -10,25 +10,10 @@ class TestOrderCreate:
 
     @allure.title('Создание заказа')
     @allure.description('Создаём заказ с разными параметрами цвета, сверяем код и сообщение ответа')
-    @pytest.mark.parametrize('color', ['black', 'gray', None])
+    @pytest.mark.parametrize('color', ['black', 'grey', '""'])
     def test_order_create_valid_data_returns_trackid(self, color):
         # данные заказа, цвет параметризирован
-        order_data = {
-            "firstName": "Naruto",
-            "lastName": "Uchiha",
-            "address": "Konoha, 142 apt.",
-            "metroStation": 4,
-            "phone": "+7 800 355 35 35",
-            "rentTime": 5,
-            "deliveryDate": "2020-06-06",
-            "comment": "Saske, come back to Konoha",
-            "color": [
-                color
-                ]
-            }
-        # если цвет - None, то удаляем его из запроса
-        if color == None:
-            order_data.pop('color')
+        order_data = get_order_data(color)
 
         # сериализируем запрос в json
         data_json = json.dumps(order_data)
